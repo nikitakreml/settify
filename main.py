@@ -19,7 +19,6 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS user_rating(discord_id INTEGER UNIQ
 connection.commit()
 
 
-
 #Creation bot instance
 intents = discord.Intents.all()
 client = commands.Bot(command_prefix='!',intents = intents)
@@ -39,6 +38,7 @@ async def create_channel(ctx, ch_type, name):
          await ctx.message.channel.send("Not correct channel type")
 
 @client.command()
+@commands.has_permissions(manage_messages=True)
 async def clear(ctx, amount:int):
    await ctx.channel.purge(limit=amount)
 
@@ -82,7 +82,21 @@ async def my_rating(ctx):
     user_rate = cursor.execute('SELECT rating FROM user_rating WHERE discord_id = (?)',(myid,)).fetchone()[0]
     await ctx.send(user_rate)
 
+@client.command()
+async def event(ctx, message):
+    await ctx.send(content = "@everyone "+ message)
+
+@client.command() 
+async def send_to_all(ctx, message):
+    members = ctx.guild.members
+
+    for member in members:
+        try:
+            await member.send(message)
+            print('Successfull DM')
+        except:
+            print('Unsuccessfull DM')
+
 
 #Bot start
 client.run(program_variables.TOKEN)
-
